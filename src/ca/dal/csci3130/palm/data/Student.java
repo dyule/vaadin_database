@@ -12,18 +12,6 @@ import javax.persistence.ManyToOne;
 
 @Entity
 public class Student {
-	public Student(String name, Major major) {
-		super();
-		this.name = name;
-		this.major = major;
-		major.getStudents().add(this);
-		this.courses = new HashSet<Course>();
-	}
-	
-	Student() {
-		// Needed for JPA
-	}
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
@@ -35,6 +23,18 @@ public class Student {
 	
 	@ManyToMany
 	private Set<Course> courses;
+	
+	public Student(String name, Major major) {
+		super();
+		this.name = name;
+		this.major = major;
+		major.getStudents().add(this);
+		this.courses = new HashSet<Course>();
+	}
+	
+	Student() {
+		// Needed for JPA
+	}
 
 	public Long getId() {
 		return id;

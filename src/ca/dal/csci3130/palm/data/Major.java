@@ -10,6 +10,14 @@ import javax.persistence.OneToMany;
 @Entity
 public class Major {
 	
+	@Id
+	private String code;
+	
+	private String name;
+	
+	@OneToMany(mappedBy = "major")
+	private Set<Student> students;
+
 	public Major(String code, String name) {
 		super();
 		this.code = code;
@@ -20,15 +28,7 @@ public class Major {
 	Major() {
 		// Needed for JPA
 	}
-
-	@Id
-	private String code;
 	
-	private String name;
-	
-	@OneToMany(mappedBy = "major")
-	private Set<Student> students;
-
 	public String getCode() {
 		return code;
 	}

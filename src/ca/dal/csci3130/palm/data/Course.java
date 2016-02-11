@@ -1,6 +1,5 @@
 package ca.dal.csci3130.palm.data;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,6 +9,14 @@ import javax.persistence.ManyToMany;
 
 @Entity
 public class Course {
+
+	@Id
+	private String courseNumber;
+	
+	private String courseName;
+	
+	@ManyToMany(mappedBy="courses")
+	private Set<Student> students;
 
 	public Course(String courseNumber, String courseName) {
 		super();
@@ -26,15 +33,7 @@ public class Course {
 		this.students.add(student);
 		student.getCourses().add(this);
 	}
-
-	@Id
-	private String courseNumber;
 	
-	private String courseName;
-	
-	@ManyToMany(mappedBy="courses")
-	private Set<Student> students;
-
 	public String getCourseNumber() {
 		return courseNumber;
 	}
