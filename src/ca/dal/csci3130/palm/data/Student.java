@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -18,7 +19,7 @@ public class Student {
 	
 	private String name;
 	
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.LAZY)
 	private Major major;
 	
 	@ManyToMany
@@ -28,7 +29,7 @@ public class Student {
 		super();
 		this.name = name;
 		this.major = major;
-		major.getStudents().add(this);
+		//major.getStudents().add(this);
 		this.courses = new HashSet<Course>();
 	}
 	
