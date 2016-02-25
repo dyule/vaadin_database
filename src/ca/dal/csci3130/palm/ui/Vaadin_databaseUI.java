@@ -5,25 +5,22 @@ import java.util.Set;
 
 import javax.servlet.annotation.WebServlet;
 
-import ca.dal.csci3130.palm.data.Course;
-import ca.dal.csci3130.palm.data.Major;
-import ca.dal.csci3130.palm.data.Student;
-
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
+import ca.dal.csci3130.palm.data.Course;
+import ca.dal.csci3130.palm.data.Major;
+import ca.dal.csci3130.palm.data.Student;
+
 @SuppressWarnings("serial")
-@Theme("vaadin_database")
+@Theme("palm")
 public class Vaadin_databaseUI extends UI {
 
 	@WebServlet(value = "/*", asyncSupported = true)
@@ -42,22 +39,28 @@ public class Vaadin_databaseUI extends UI {
 		setContent(layout);
 		setDefaultCourses();
 		Set<Student> students = generateDefaultStudents();
-		JPAContainer<Student> studentContainer = JPAContainerFactory.make(Student.class, "vaadin_database");
+		
+		JPAContainer<Student> studentContainer = JPAContainerFactory.make(Student.class, "palm_db");
 		
 		for (Student student: students) {
-			System.out.println(student.getName());
 			studentContainer.addEntity(student);
 		}
 		
+		studentContainer.addNestedContainerProperty("major.name");
+		
 		Table studentTable = new Table("Students", studentContainer);
-		studentTable.setVisibleColumns("id", "name", "major", "courses");
+		studentTable.setVisibleColumns("id", "name", "major.name", "courses");
 		layout.addComponent(studentTable);
 	}
 	
 	private void setDefaultCourses() {
-		seCourse = new Course("CSCI 3130", "Software Engineering");
-		uiCourse = new Course("CSCI 3160", "User Interface Design");
-		acCourse = new Course("CSCI 1106", "Animated Computing");
+		JPAContainer<Course> courses = JPAContainerFactory.make(Course.class, "palm_db");
+		Object seId = courses.addEntity(new Course("CSCI 3130", "Software Engineering"));
+		Object uiId = courses.addEntity(new Course("CSCI 3160", "User Interface Design"));
+		Object acId = courses.addEntity(new Course("CSCI 1106", "Animated Computing"));
+		seCourse = courses.getItem(seId).getEntity();
+		uiCourse = courses.getItem(uiId).getEntity();
+		acCourse = courses.getItem(acId).getEntity();
 	}
 	
 	private Set<Student> generateDefaultStudents() {
