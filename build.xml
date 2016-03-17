@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
-<project basedir="." default="test" xmlns:ivy="antlib:org.apache.ivy.ant" name="Aspen">
+<project basedir="." default="test" xmlns:ivy="antlib:org.apache.ivy.ant" name="Build script for Vaadin 7 projects">
 
-	<property file="${workdir}/.userdata.properties" />
 	<property file="build.properties" />
 	<property name="workdir" value="${artifacts}/work" />
 	<property name="compiled-classes.dir" value="${workdir}/WEB-INF/classes" />
@@ -91,10 +90,10 @@
 		<!-- the dependencies do all the work here -->
 	</target>
 
-	<target name="-compile-theme-1" if="aspen">
-		<mkdir dir="${workdir}/VAADIN/themes/aspen" />
-		<copy todir="${workdir}/VAADIN/themes/aspen">
-			<fileset dir="${webroot}/VAADIN/themes/aspen">
+	<target name="-compile-theme-1" if="theme.name">
+		<mkdir dir="${workdir}/VAADIN/themes/${theme.name}" />
+		<copy todir="${workdir}/VAADIN/themes/${theme.name}">
+			<fileset dir="${webroot}/VAADIN/themes/${theme.name}">
 				<exclude name="**/*.css" />
 				<exclude name="**/*.scss" />
 			</fileset>
@@ -164,12 +163,16 @@
 
 		<typedef name="webApp" classname="org.eclipse.jetty.ant.AntWebAppContext" classpathref="jettypath" loaderref="jetty.loader" onerror="ignore" />
 		<taskdef classpathref="jettypath" resource="tasks.properties" loaderref="jetty.loader" />
-
+		<typedef name="connector" classname="org.eclipse.jetty.ant.types.Connector"
+		           classpathref="jetty.plugin.classpath" loaderref="jetty.loader" />
 		<jetty.run daemon="true">
 			<systemProperties>
 				<systemProperty name="org.eclipse.jetty.LEVEL" value="WARN" />
 				<systemProperty name="org.eclipse.jetty.util.log.class" value="org.eclipse.jetty.util.log.StrErrLog" />
 			</systemProperties>
+			<connectors>
+				<connector port="8090"/>
+			</connectors>
 			<webApp war="${artifacts}/${warfilename}" contextPath="/">
 				<attributes>
 		          <attribute name="org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern" value=".*classes.*"/>
@@ -232,7 +235,7 @@
 	</target>
 
 	<target name="deploy" depends="test" description="Deploys the project to the remote production server">
-		<scp file="${artifacts}/${warfilename}" todir="${username}:${password}@mega.cs.dal.ca:/opt/apache-tomcat-7.0.57/webapps" trust="yes" />
+		<copy file="${artifacts}/${warfilename}" todir="/opt/apache-tomcat-7.0.57/webapps" />
 	</target>
 
 	<target name="build-and-package" depends="compile-theme, compile-project, compile-widgetset, package-war">
