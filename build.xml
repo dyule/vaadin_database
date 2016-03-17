@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<project basedir="." default="test" xmlns:ivy="antlib:org.apache.ivy.ant" name="Build script for Vaadin 7 projects">
+<project basedir="." default="test" xmlns:ivy="antlib:org.apache.ivy.ant" name="Aspen">
 
-	<property file="${user.home}/.userdata.properties" />
+	<property file="${workdir}/.userdata.properties" />
 	<property file="build.properties" />
 	<property name="workdir" value="${artifacts}/work" />
 	<property name="compiled-classes.dir" value="${workdir}/WEB-INF/classes" />
@@ -80,7 +80,6 @@
 	</target>
 
 	<target name="-init" depends="setup">
-		<mkdir dir="${artifacts}" />
 		<mkdir dir="${workdir}" />
 		<echo message="Resolving ivy dependencies" />
 		<ivy:cachefileset setid="ivy.default" conf="default" log="download-only"/>
@@ -92,10 +91,10 @@
 		<!-- the dependencies do all the work here -->
 	</target>
 
-	<target name="-compile-theme-1" if="theme.name">
-		<mkdir dir="${workdir}/VAADIN/themes/${theme.name}" />
-		<copy todir="${workdir}/VAADIN/themes/${theme.name}">
-			<fileset dir="${webroot}/VAADIN/themes/${theme.name}">
+	<target name="-compile-theme-1" if="aspen">
+		<mkdir dir="${workdir}/VAADIN/themes/aspen" />
+		<copy todir="${workdir}/VAADIN/themes/aspen">
+			<fileset dir="${webroot}/VAADIN/themes/aspen">
 				<exclude name="**/*.css" />
 				<exclude name="**/*.scss" />
 			</fileset>
@@ -171,7 +170,11 @@
 				<systemProperty name="org.eclipse.jetty.LEVEL" value="WARN" />
 				<systemProperty name="org.eclipse.jetty.util.log.class" value="org.eclipse.jetty.util.log.StrErrLog" />
 			</systemProperties>
-			<webApp war="${artifacts}/${warfilename}" contextPath="/" />
+			<webApp war="${artifacts}/${warfilename}" contextPath="/">
+				<attributes>
+		          <attribute name="org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern" value=".*classes.*"/>
+		        </attributes>
+			</webApp>
 		</jetty.run>
 	</target>
 
@@ -200,12 +203,19 @@
 
 	<target name="package-war" depends="-init" description="Packages everything in a WAR that has been deployed in ${workdir}">
 		<mkdir dir="${workdir}/WEB-INF/lib" />
+		<copy todir="${workdir}/WEB-INF/lib" flatten="true">
+		      <fileset refid="ivy.default"/>
+	    </copy>
 		<delete>
 			<fileset dir="${workdir}/WEB-INF/lib">
 				<include name="**/*-sources.jar" />
 				<include name="**/*-javadoc.jar" />
 			</fileset>
 		</delete>
+		<mkdir dir="$/WEB-INF/classes/META-INF" />
+		<copy todir="${workdir}/WEB-INF/classes/META-INF" failonerror="no">
+			<fileset dir="${sources}/META-INF" />
+		</copy>
 		<mkdir dir="${workdir}/VAADIN/resources" />
 		<copy todir="${workdir}/VAADIN/resources" failonerror="no">
 			<fileset dir="${webroot}/VAADIN/resources" />
@@ -218,7 +228,6 @@
 			<lib dir="${libraries}" erroronmissingdir="no">
 				<include name="*.jar" />
 			</lib>
-			<lib refid="ivy.default" />
 		</war>
 	</target>
 
